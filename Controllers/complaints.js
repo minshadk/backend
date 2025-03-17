@@ -10,7 +10,7 @@ const upload = multer({ storage })
 
 exports.createComplaint = async (req, res) => {
   try {
-    const { title, description, userId, address } = req.body
+    const { title, description, userId, address,department } = req.body
     let imageUrl = null
     let imagePublicId = null
     if (req.file) {
@@ -35,6 +35,7 @@ exports.createComplaint = async (req, res) => {
       description,
       userId,
       address,
+      department,
       complaintImage: imageUrl
         ? { publicId: imagePublicId, url: imageUrl }
         : null,

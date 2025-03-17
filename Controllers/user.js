@@ -43,7 +43,7 @@ exports.logIn = async (req, res) => {
 
     const createToken = (_id) => {
       return jwt.sign({ _id }, process.env.SECRET, { expiresIn: '3d' })
-    } 
+    }
 
     const token = createToken(user._id)
 
@@ -58,9 +58,10 @@ exports.logIn = async (req, res) => {
           userName: user.userName,
           userType: user.userType,
           userId: user._id,
+          department: user.department || null, // Include department if it exists
         },
       },
-    }) 
+    })
   } catch (err) {
     console.log(err)
     res.status(400).json({ status: 'failed', message: 'Login failed' })
@@ -69,25 +70,29 @@ exports.logIn = async (req, res) => {
 
 exports.getAllWorkers = async (req, res) => {
   try {
-    const workers = await User.find({ userType: 'worker' }); 
-    res.status(200).json({ success: true, workers });
+    const workers = await User.find({ userType: 'worker' })
+    res.status(200).json({ success: true, workers })
   } catch (error) {
-    res.status(500).json({ success: false, message: 'Server error', error });
+    res.status(500).json({ success: false, message: 'Server error', error })
   }
-};
+}
 
 exports.deleteWorker = async (req, res) => {
   try {
-    const { id } = req.params;
+    const { id } = req.params
 
-    const worker = await User.findOne({ _id: id, userType: 'worker' });
+    const worker = await User.findOne({ _id: id, userType: 'worker' })
     if (!worker) {
-      return res.status(404).json({ success: false, message: 'Worker not found' });
+      return res
+        .status(404)
+        .json({ success: false, message: 'Worker not found' })
     }
 
-    await User.findByIdAndDelete(id);
-    res.status(200).json({ success: true, message: 'Worker deleted successfully' });
+    await User.findByIdAndDelete(id)
+    res
+      .status(200)
+      .json({ success: true, message: 'Worker deleted successfully' })
   } catch (error) {
-    res.status(500).json({ success: false, message: 'Server error', error });
+    res.status(500).json({ success: false, message: 'Server error', error })
   }
-};
+}

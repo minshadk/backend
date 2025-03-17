@@ -10,9 +10,12 @@ const complaintSchema = new mongoose.Schema(
       type: String,
       required: true,
     },
+    department: {
+      type: String,
+    },
     status: {
       type: String,
-      enum: ['pending', 'in-progress', 'completed'],
+      // enum: ['pending', 'in progress', 'completed'],
       default: 'pending',
     },
     address: {
