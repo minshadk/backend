@@ -15,7 +15,6 @@ const complaintSchema = new mongoose.Schema(
     },
     status: {
       type: String,
-      // enum: ['pending', 'in progress', 'completed'],
       default: 'pending',
     },
     address: {
@@ -37,6 +36,14 @@ const complaintSchema = new mongoose.Schema(
     assignedWorker: {
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
+    },
+    latitude: {
+      type: Number, // To store the latitude
+      required: true, // Make it required if needed
+    },
+    longitude: {
+      type: Number, // To store the longitude
+      required: true, // Make it required if needed
     },
   },
   { timestamps: true },

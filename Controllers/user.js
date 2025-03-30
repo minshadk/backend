@@ -1,6 +1,10 @@
 const jwt = require('jsonwebtoken')
 const bcrypt = require('bcrypt')
 const User = require('../Models/user')
+const Complaint = require('../Models/complaints')
+const Feedback = require('../Models/feedback')
+
+const mongoose = require('mongoose')
 
 exports.createUser = async (req, res) => {
   try {
@@ -77,22 +81,82 @@ exports.getAllWorkers = async (req, res) => {
   }
 }
 
-exports.deleteWorker = async (req, res) => {
+exports.getAllUsers = async (req, res) => {
   try {
-    const { id } = req.params
-
-    const worker = await User.findOne({ _id: id, userType: 'worker' })
-    if (!worker) {
-      return res
-        .status(404)
-        .json({ success: false, message: 'Worker not found' })
-    }
-
-    await User.findByIdAndDelete(id)
-    res
-      .status(200)
-      .json({ success: true, message: 'Worker deleted successfully' })
+    const users = await User.find({ userType: 'user' })
+    res.status(200).json({ success: true, users })
   } catch (error) {
     res.status(500).json({ success: false, message: 'Server error', error })
   }
 }
+
+exports.deleteUser = async (req, res) => {
+  try {
+    const { id } = req.params
+
+    const user = await User.findById(id)
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'User not found' })
+    }
+
+    if (user.userType === 'worker') {
+      const complaints = await Complaint.find({ assignedWorker: id })
+
+      const complaintIds = complaints.map((c) => c._id)
+
+      await Feedback.deleteMany({ complaintId: { $in: complaintIds } })
+
+      await Complaint.deleteMany({ assignedWorker: id })
+    } else {
+      await Complaint.deleteMany({ userId: id })
+      await Feedback.deleteMany({ user: id })
+    }
+
+    await User.findByIdAndDelete(id)
+
+    res.status(200).json({
+      success: true,
+      message:
+        'User and all related data (complaints and feedback) deleted successfully',
+    })
+  } catch (error) {
+    console.error('Error deleting user:', error)
+    res.status(500).json({
+      success: false,
+      message: 'Server error while deleting user',
+      error: error.message,
+    })
+  }
+}
+
+// exports.deleteUser = async (req, res) => {
+//   try {
+//     const { id } = req.params
+
+//     // Find the user first
+//     const user = await User.findById(id)
+//     if (!user) {
+//       return res.status(404).json({ success: false, message: 'User not found' })
+//     }
+
+//     // Delete related complaints and feedback
+//     if (user.role === 'worker') {
+//       await Complaint.deleteMany({ assignedWorker: id })
+//     } else {
+//       await Complaint.deleteMany({ userId: id })
+//       await Feedback.deleteMany({ user: id })
+//     }
+
+//     // Delete the user
+//     await User.findByIdAndDelete(id)
+
+//     res
+//       .status(200)
+//       .json({
+//         success: true,
+//         message: 'User and related data deleted successfully',
+//       })
+//   } catch (error) {
+//     res.status(500).json({ success: false, message: 'Server error', error })
+//   }
+// }

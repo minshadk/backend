@@ -7,7 +7,8 @@ router.post('/signup', user.createUser)
 router.post('/login', user.logIn)
 
 router.get('/workers', user.getAllWorkers)
-router.delete('/workers/:id', user.deleteWorker)
+router.get('/users', user.getAllUsers)
+router.delete('/user/:id', user.deleteUser)
 
 module.exports = router
  
